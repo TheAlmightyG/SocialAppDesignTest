@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Stack } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import { AuthProvider, useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 
@@ -13,21 +13,22 @@ const _layout = ()=>{
 }
 const MainLayout = () => {
   const {setAuth} = useAuth();
+  const router = useRouter();
 
   useEffect(()=>{
     supabase.auth.onAuthStateChange((_event, session)=> {
-      console.log('session user: ', session?.user);
+      console.log('session user: ', session?.user?.id);
 
-      if(session){
-        //set auth
-        //move to home screen
-      } else {
-        //set auth null
-        // move to welcome screen
-        
-      }
+       if(session){
+        setAuth(session?.user);
+        router.replace('/home');
+       } else {
+         setAuth(null);
+        router.replace('/welcomeScreen');
+
+      } 
     })
-  })
+  }, [])
   return (
    <Stack
     screenOptions={{
