@@ -10,18 +10,43 @@ import { useRouter } from 'expo-router'
 import { wp, hp } from '../helpers/common'
 import Input from '../components/Input'
 import  Button  from '../components/Button'
+import { supabase } from '../lib/supabase'
 
 const SignUp = () => {
     const router = useRouter();
-    const nameRef = useRef();
-    const emailRef = useRef("");
-    const passwordRef = useRef("");
+    const nameRef = useRef('');
+    const emailRef = useRef('');
+    const passwordRef = useRef('');
     const [loading, setLoading] = useState(false);
 
-    const onSubmit = () => {
+    const onSubmit = async ()=> {
         if(!emailRef.current || !passwordRef.current) {
             Alert.alert('Sign Up', "please fill all the fields!");
             return;
+        }
+
+        let name = nameRef.current.trim();
+        let email = emailRef.current.trim();
+        let password = passwordRef.current.trim();
+
+        setLoading(true);
+
+        const {data: { session }, error} = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    name
+                }
+            }
+        });
+
+        setLoading(false);
+
+        //console.log('session: ', session);
+        //console.log('error: ', error);
+        if (error){
+            Alert.alert( 'Sign up', error.message);
         }
     }
   return (
