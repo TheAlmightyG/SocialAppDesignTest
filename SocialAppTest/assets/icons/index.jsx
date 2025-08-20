@@ -9,7 +9,7 @@ import Plus from './Plus';
 import Search from './Search';
 import Location from './Location';
 import Call from './Call';
-import { theme } from '../../constants/theme';
+import { theme } from '../../constants/Theme';
 import Camera from './Camera';
 import Edit from './Edit';
 import ArrowLeft from './ArrowLeft';

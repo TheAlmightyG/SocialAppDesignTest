@@ -7,7 +7,7 @@ const Login = () => {
   return (
     <ScreenWrapper>
       <Text>Login</Text>
-      <Home strokeWidth={2} color={theme.colors.primary}/>
+      <Home strokeWidth={2} color={theme.colors.rose}/>
     </ScreenWrapper>
   )
 }
