@@ -1,12 +1,21 @@
 import * as FileSystem from 'expo-file-system'
 import { decode } from 'base64-arraybuffer'
 import { supabase } from '../lib/supabase'
+import { supabaseUrl } from '../constants'
 export const getUserImageSrc= imagePath => {
     if(imagePath){
-        return {uri:imagePath}
+        return getSupabaseFileUrl(imagePath);
     }else{
         return require('../assets/images/defaultUser.png')
     }
+}
+
+export const getSupabaseFileUrl = filePath => {
+    if(filePath){
+        return {uri: `${supabaseUrl}/storage/v1/object/public/uploads/${filePath}`
+    } 
+    return null;
+}
 }
 
 export const uploadFile = async (folderName, fileUri, isImage=true)=>{
@@ -31,7 +40,6 @@ export const uploadFile = async (folderName, fileUri, isImage=true)=>{
         return {success: false, msg: 'Could not upload media'};
         }
 
-        console.log('data: ', data )
         return {success: true, data: data.path}
 
     }catch(error){

@@ -6,7 +6,7 @@ import { theme } from '../../constants/Theme'
 import  Header  from '../../components/Header'
 import { Image } from 'expo-image'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUserImageSrc } from '../../services/imageService'
+import { getUserImageSrc, uploadFile } from '../../services/imageService'
 import Icon from '../../assets/icons'
 import Input from '../../components/Input'
 import { validatePathConfig } from 'expo-router/build/fork/getPathFromState-forks'
@@ -67,8 +67,11 @@ const EditProfile = () => {
 
         if(typeof image == 'object'){
             //upload image
+            let imageRes = await uploadFile('profiles', image?.uri, true);
+            if(imageRes.success) userData.image = imageRes.data;
+            else userData.image=null;
         }
-        
+
         // update user
         const res = await updateUser(currentUser?.id, userData);
         setLoading(false);
