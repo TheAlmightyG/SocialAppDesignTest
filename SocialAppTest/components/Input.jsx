@@ -5,7 +5,7 @@ import { hp } from '../helpers/common'
 
 const Input = (props) => {
   return (
-    <View style={[styles.container, props.containterStyles && props.containterStyles] }>
+    <View style={[styles.container, props.containerStyle && props.containerStyle] }>
       {
       props.icon && props.icon
       }
