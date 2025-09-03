@@ -14,6 +14,7 @@ import { getSupabaseFileUrl } from '../../services/imageService'
 import  { useVideoPlayer, VideoView } from 'expo-video'
 import { createOrUpdatePost } from '../../services/postService'
 import { Video as ExpoAVVideo } from "expo-av";
+import { router } from 'expo-router'
 
 
 
