@@ -4,7 +4,6 @@
     "slug": "SocialAppTest",
     "version": "1.0.0",
     "orientation": "portrait",
-    
     "scheme": "socialapptest",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +12,6 @@
     },
     "android": {
       "adaptiveIcon": {
-        
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -21,7 +19,6 @@
     "web": {
       "bundler": "metro",
       "output": "static"
-      
     },
     "plugins": [
       "expo-router",
@@ -33,7 +30,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
