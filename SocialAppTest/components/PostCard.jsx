@@ -1,15 +1,17 @@
-import { StyleSheet, Text, Touchable, TouchableOpacity, View, Image, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, Touchable, TouchableOpacity, View, Image, Pressable, Alert, Share } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { theme } from '../constants/Theme'
-import { hp, wp } from '../helpers/common'
+import { hp, stripHtmlTags, wp } from '../helpers/common'
 import Avatar from './Avatar'
 import moment from 'moment'
 import Icon from '../assets/icons'
 import RenderHtml from 'react-native-render-html'
-import { getSupabaseFileUrl } from '../services/imageService'
+import { downloadFile, getSupabaseFileUrl } from '../services/imageService'
 import { useVideoPlayer, VideoView } from 'expo-video'
 import { Video } from 'expo-av'
 import PostVideo from '../constants/PostVideo'
+import { createPostLike, removePostLike } from '../services/postService'
+import Loading from './Loading'
 
 
 const textStyle = {
@@ -42,13 +44,57 @@ const PostCard = ({
         shadowRadius: 6,
         elevation: 1
     }
+
+    const [likes, setLikes] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(()=>{
+        setLikes(item?.postLikes)
+    },[])
 const openPostDetails = ()=>{
 
 }
 
+const onLike = async() => {
+    if(liked){
+        let updatedLikes = likes.filter(like=> like.userId!=currentUser?.id);
+    setLikes([...updatedLikes])
+    let res = await removePostLike(item?.id, currentUser?.id);
+    console.log('Remove like: ', res);
+    if(!res.success){
+        Alert.alert('Post', 'Something Went Wrong');
+    } 
+    }else{
+       let data = {
+        userId: currentUser?.id,
+        postId: item?.id
+    }
+    setLikes([...likes, data])
+    let res = await createPostLike(data);
+    console.log('added like: ', res);
+    if(!res.success){
+        Alert.alert('Post', 'Something Went Wrong');
+    } 
+    } 
+}
+    const onShare = async () =>{
+        let content = {message: stripHtmlTags(item?.body)};
+        if(item?.file){
+            console.log('Image uri: ', item?.file)
+            setLoading(true);
+            let url = await downloadFile(getSupabaseFileUrl(item?.file).uri);
+            console.log('Image url: ', url)
+            setLoading(false);
+            content.url = url;
+        } else {
+
+        }
+        Share.share(content);
+    }
+
 const createdAt = moment(item?.created_at).format('MMM D');
-const likes = [];
-const liked = false;
+const liked = likes.filter(like=> like.userId==currentUser?.id)[0]? true: false;
+
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
@@ -113,7 +159,7 @@ const liked = false;
       {/* like, comment, and share */}
         <View style={styles.footer}>
             <View style={styles.footerBottom}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={onLike}>
                     <Icon name="heart" size={24} fill={liked? theme.colors.rose: 'transparent'} color={liked? theme.colors.rose: theme.colors.textDark} />
                 </TouchableOpacity>
                 <Text style={styles.count}>
@@ -133,9 +179,16 @@ const liked = false;
                 </Text>
             </View>
             <View style={styles.footerBottom}>
-                <TouchableOpacity>
-                    <Icon name="share" size={24} color={ theme.colors.textDark} />
-                </TouchableOpacity>
+                {
+                    loading? (
+                        <Loading size="small"/>
+                    ):(
+                        <TouchableOpacity onPress={onShare}>
+                        <Icon name="share" size={24} color={ theme.colors.textDark} />
+                        </TouchableOpacity> 
+                    )
+                }
+                
                 
             </View>
         </View>
