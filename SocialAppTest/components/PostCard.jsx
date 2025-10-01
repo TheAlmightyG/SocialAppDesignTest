@@ -12,6 +12,7 @@ import { Video } from 'expo-av'
 import PostVideo from '../constants/PostVideo'
 import { createPostLike, removePostLike } from '../services/postService'
 import Loading from './Loading'
+import * as Sharing from 'expo-sharing'
 
 
 const textStyle = {
@@ -77,20 +78,46 @@ const onLike = async() => {
     } 
     } 
 }
-    const onShare = async () =>{
-        let content = {message: stripHtmlTags(item?.body)};
-        if(item?.file){
-            console.log('Image uri: ', item?.file)
-            setLoading(true);
-            let url = await downloadFile(getSupabaseFileUrl(item?.file).uri);
-            console.log('Image url: ', url)
-            setLoading(false);
-            content.url = url;
-        } else {
-
-        }
-        Share.share(content);
+  const onShare = async () => {
+  try {
+    // If no file attached → share text only
+    if (!item?.file) {
+      await Share.share({
+        message: stripHtmlTags(item?.body || ""),
+      });
+      return;
     }
+
+    // If file attached → download & share
+    setLoading(true);
+    const remoteUrl = getSupabaseFileUrl(item?.file).uri;
+    const localUri = await downloadFile(remoteUrl); // this is already "file://..."
+    setLoading(false);
+
+    if (!localUri) {
+      console.warn("Download failed, falling back to sharing text + link.");
+      await Share.share({
+        message: stripHtmlTags(item?.body || ""),
+        url: remoteUrl,
+      });
+      return;
+    }
+
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(localUri, {
+        dialogTitle: "Share File",
+      });
+    } else {
+      await Share.share({
+        message: stripHtmlTags(item?.body || ""),
+        url: remoteUrl,
+      });
+    }
+  } catch (err) {
+    console.error("Error sharing:", err);
+    setLoading(false);
+  }
+};
 
 const createdAt = moment(item?.created_at).format('MMM D');
 const liked = likes.filter(like=> like.userId==currentUser?.id)[0]? true: false;
